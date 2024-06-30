@@ -2,25 +2,33 @@ let timeLeft = 20;
 let timer;
 let correctAnswer;
 
-const getQuestion = async () => {
-    try {
-        const response = await fetch('https://math.tools/api/numbers/fact/random');
-        const data = await response.json();
-        setQuestion(data);
-    } catch (error) {
-        showError('Failed to load question.');
-        console.error('Error fetching question:', error);
-    }
+const getQuestion = () => {
+    const question = generateMathQuestion();
+    setQuestion(question);
+};
+
+const generateMathQuestion = () => {
+    const num1 = Math.floor(Math.random() * 10) + 1;
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    const questionText = `What is ${num1} + ${num2}?`;
+    const answer = num1 + num2;
+    return { question: questionText, answer: answer };
 };
 
 const setQuestion = (data) => {
-    const questionText = `What is ${data.question}?`;
+    const questionText = data.question;
     correctAnswer = data.answer;
     document.getElementById('question').textContent = questionText;
+    document.getElementById('answer').value = '';
+    document.getElementById('submit').disabled = false;
+    document.getElementById('again').style.display = 'none';
+    document.getElementById('result').textContent = '';
     startTimer();
 };
 
 const startTimer = () => {
+    timeLeft = 20;
+    document.getElementById('time').textContent = timeLeft;
     timer = setInterval(countdown, 1000);
 };
 
@@ -46,6 +54,7 @@ const endGame = (message) => {
     clearInterval(timer);
     document.getElementById('submit').disabled = true;
     document.getElementById('result').textContent = message;
+    document.getElementById('again').style.display = 'inline-block';
 };
 
 const showError = (message) => {
@@ -59,6 +68,11 @@ const showError = (message) => {
     } else {
         errorDiv.textContent = message;
     }
+};
+
+const restartGame = () => {
+    clearInterval(timer);
+    getQuestion();
 };
 
 getQuestion();
